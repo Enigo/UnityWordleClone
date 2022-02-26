@@ -5,14 +5,17 @@ using Game;
 using GameState;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Statistic : MonoBehaviour
 {
     private Image _answerImage;
-    private TextMeshProUGUI _answer, _played, _win, _currentStreak, _maxStreak;
+    private TextMeshProUGUI _answer, _played, _win, _currentStreak, _maxStreak, _finishedText;
+    private Button _playButton;
     private DistributionData[] _distributionDataLines;
     private GameStatsSaver _gameStatsSaver;
+    private GameData _gameData;
 
     private Stats _stats;
 
@@ -26,8 +29,11 @@ public class Statistic : MonoBehaviour
         _currentStreak = texts[4];
         _maxStreak = texts[5];
         _distributionDataLines = GetComponentsInChildren<DistributionData>();
+        _playButton = GetComponentInChildren<Button>();
+        _finishedText = GetComponentsInChildren<TextMeshProUGUI>(true).Last();
 
         _gameStatsSaver = FindObjectOfType<GameStatsSaver>();
+        _gameData = FindObjectOfType<GameData>();
     }
 
     public void ShowOnWin(string answer, int currentLine)
@@ -35,7 +41,9 @@ public class Statistic : MonoBehaviour
         _answer.text = answer;
         _answerImage.color = ColorCollection.Green;
         _stats = _gameStatsSaver.SaveSuccessStats(currentLine);
-        PlayerPrefsUtils.SetPlayedToday();
+
+        CheckWordsCount();
+
         ExecuteOnShow(_stats, currentLine);
     }
 
@@ -44,8 +52,19 @@ public class Statistic : MonoBehaviour
         _answer.text = answer;
         _answerImage.color = ColorCollection.Grey;
         _stats = _gameStatsSaver.SaveFailureStats();
-        PlayerPrefsUtils.SetPlayedToday();
+
+        CheckWordsCount();
+
         ExecuteOnShow(_stats);
+    }
+
+    private void CheckWordsCount()
+    {
+        if (_gameStatsSaver.GetCurrentWordIndex() >= _gameData.GetWords().Count)
+        {
+            _playButton.gameObject.SetActive(false);
+            _finishedText.gameObject.SetActive(true);
+        }
     }
 
     private void ExecuteOnShow(Stats savedStats, int currentLine = -1)
@@ -93,5 +112,10 @@ public class Statistic : MonoBehaviour
         }
 
         transform.DOLocalMoveY(0, 1.25f).SetEase(Ease.OutBack);
+    }
+
+    public void OnPlay()
+    {
+        SceneManager.LoadSceneAsync("Game");
     }
 }

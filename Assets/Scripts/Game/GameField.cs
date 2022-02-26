@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Game
 {
@@ -20,14 +18,6 @@ namespace Game
             _errorPopup = GetComponentInChildren<ErrorPopup>();
             _gameData = FindObjectOfType<GameData>();
             _statistic = GetComponentInChildren<Statistic>();
-        }
-
-        private void Start()
-        {
-            if (PlayerPrefsUtils.WasPlayedToday())
-            {
-                GetComponentsInChildren<Image>(true).Last().gameObject.SetActive(true);
-            }
         }
 
         public bool IsValidInput()
