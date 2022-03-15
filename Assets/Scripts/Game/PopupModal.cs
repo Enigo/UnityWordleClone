@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Game
 {
-    public class ErrorPopup : MonoBehaviour
+    public class PopupModal : MonoBehaviour
     {
         private Image _image;
         private TextMeshProUGUI _text;

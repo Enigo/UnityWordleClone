@@ -154,5 +154,10 @@ namespace Game
         {
             _texts[--_currentField].text = "";
         }
+
+        public IEnumerable<Color> GetAnswerColors()
+        {
+            return _images.Select(image => image.color).ToArray();
+        }
     }
 }

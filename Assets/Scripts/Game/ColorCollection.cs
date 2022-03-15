@@ -13,5 +13,13 @@ namespace Game
             ColorUtility.TryParseHtmlString(hex, out var color);
             return color;
         }
+
+        public static bool IsTheSameColor(Color one, Color other)
+        {
+            return Mathf.Approximately(one.r, other.r)
+                   && Mathf.Approximately(one.g, other.g)
+                   && Mathf.Approximately(one.b, other.b)
+                   && Mathf.Approximately(one.a, other.a);
+        }
     }
 }

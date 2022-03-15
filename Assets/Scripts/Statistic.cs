@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using DG.Tweening;
 using Game;
 using GameState;
@@ -9,12 +10,18 @@ using UnityEngine.UI;
 
 public class Statistic : MonoBehaviour
 {
+    [DllImport("__Internal")]
+    private static extern void CopyToClipboardAndShare(string textToCopy);
+
     private Image _answerImage;
     private TextMeshProUGUI _answer, _played, _win, _currentStreak, _maxStreak;
     private DistributionData[] _distributionDataLines;
     private GameStatsSaver _gameStatsSaver;
+    private PopupModal _popupModal;
 
     private Stats _stats;
+    private Line[] _lines;
+    private string _lineFinished;
 
     private void Awake()
     {
@@ -28,22 +35,29 @@ public class Statistic : MonoBehaviour
         _distributionDataLines = GetComponentsInChildren<DistributionData>();
 
         _gameStatsSaver = FindObjectOfType<GameStatsSaver>();
+        _popupModal = FindObjectOfType<PopupModal>();
     }
 
-    public void ShowOnWin(string answer, int currentLine)
+    public void ShowOnWin(string answer, Line[] lines, int currentLine)
     {
         _answer.text = answer;
         _answerImage.color = ColorCollection.Green;
         _stats = _gameStatsSaver.SaveSuccessStats(currentLine);
+        _lineFinished = (currentLine + 1).ToString();
+        _lines = lines;
+
         PlayerPrefsUtils.SetPlayedToday();
         ExecuteOnShow(_stats, currentLine);
     }
 
-    public void ShowOnFailure(string answer)
+    public void ShowOnFailure(string answer, Line[] lines)
     {
         _answer.text = answer;
         _answerImage.color = ColorCollection.Grey;
         _stats = _gameStatsSaver.SaveFailureStats();
+        _lineFinished = "X";
+        _lines = lines;
+
         PlayerPrefsUtils.SetPlayedToday();
         ExecuteOnShow(_stats);
     }
@@ -93,5 +107,34 @@ public class Statistic : MonoBehaviour
         }
 
         transform.DOLocalMoveY(0, 1.25f).SetEase(Ease.OutBack);
+    }
+
+    public void Share()
+    {
+        var shareText = $"Wordle Clone | {_lineFinished}/6\n";
+
+        foreach (var line in _lines)
+        {
+            foreach (var answerColor in line.GetAnswerColors())
+            {
+                if (ColorCollection.IsTheSameColor(ColorCollection.Green, answerColor))
+                {
+                    shareText += "🟩";
+                }
+                else if (ColorCollection.IsTheSameColor(ColorCollection.Yellow, answerColor))
+                {
+                    shareText += "🟨";
+                }
+                else if (ColorCollection.IsTheSameColor(ColorCollection.Grey, answerColor))
+                {
+                    shareText += "⬜";
+                }
+            }
+
+            shareText += "\n";
+        }
+
+        _popupModal.ShowPopup("Copied results to clipboard!");
+        CopyToClipboardAndShare(shareText.Trim());
     }
 }

@@ -8,7 +8,7 @@ namespace Game
     public class GameField : MonoBehaviour
     {
         private Line[] _lines;
-        private ErrorPopup _errorPopup;
+        private PopupModal _popupModal;
         private GameData _gameData;
         private int _currentLine;
         private bool _gameEnd;
@@ -17,7 +17,7 @@ namespace Game
         private void Awake()
         {
             _lines = GetComponentsInChildren<Line>();
-            _errorPopup = GetComponentInChildren<ErrorPopup>();
+            _popupModal = GetComponentInChildren<PopupModal>();
             _gameData = FindObjectOfType<GameData>();
             _statistic = GetComponentInChildren<Statistic>();
         }
@@ -37,7 +37,7 @@ namespace Game
 
             if (!valid)
             {
-                _errorPopup.ShowPopup(validationResult);
+                _popupModal.ShowPopup(validationResult);
             }
 
             return valid;
@@ -61,7 +61,7 @@ namespace Game
                     yield return new WaitForSeconds(Line.TransactionDuration * 7f * 2f);
                     line.PlaySuccess();
                     yield return new WaitForSeconds(Line.TransactionDuration * 3f);
-                    _statistic.ShowOnWin(word, _currentLine);
+                    _statistic.ShowOnWin(word, _lines, _currentLine);
                 }
             }
             else
@@ -75,7 +75,7 @@ namespace Game
                     IEnumerator DelayedFailure()
                     {
                         yield return new WaitForSeconds(Line.TransactionDuration * 7f * 2f);
-                        _statistic.ShowOnFailure(word);
+                        _statistic.ShowOnFailure(word, _lines);
                     }
                 }
             }
