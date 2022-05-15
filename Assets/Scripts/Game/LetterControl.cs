@@ -12,7 +12,7 @@ namespace Game
         private Controls _controls;
         private ColorState _colorState = ColorState.None;
 
-        private void Awake()
+        public void Awake()
         {
             _image = GetComponent<Image>();
             _text = GetComponentInChildren<TextMeshProUGUI>();
